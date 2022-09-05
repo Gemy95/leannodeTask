@@ -1,0 +1,7 @@
+module.exports = {
+
+    USER_JWT_SECRET_KEY: "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCC",
+
+    ADMIN_JWT_SECRET_KEY: "LlwOmhlkbw51KKEGVLNeJ0INIMw6u863y9922o68mJl5Akqhkad"
+
+}
