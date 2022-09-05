@@ -41,8 +41,8 @@ module.exports.routes = {
 
 
   // Admin Routes
-  // 'POST /admin/login': 'admin/AdminController.login',
-  // 'GET /admin/listAllUsers': 'admin/AdminController.listAllUsers',
+  'POST /admin/login': { action: 'admin/login-action' },
+  'GET /admin/listAllUsers': { action: 'admin/list-all-users-action' }
   
 
 };
