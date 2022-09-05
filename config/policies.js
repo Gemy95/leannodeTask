@@ -22,10 +22,10 @@ module.exports.policies = {
 
   'user/*': 'isUserLoggedIn',
   'user/login-action': true,
-  'user/registerAction': true,
+  'user/register-action': true,
 
 
   'admin/*': 'isAdminLoggedIn',
   'admin/login-action': true,
-  'admin/registerAction': true,
+  'admin/register-action': true,
 };
