@@ -9,6 +9,7 @@
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
     "dotenv": "^16.0.2",
+    "firebase": "^8.6.8",
     "grunt": "1.0.4",
     "jsonwebtoken": "^8.5.1",
     "sails": "^1.5.3",
