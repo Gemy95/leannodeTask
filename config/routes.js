@@ -41,6 +41,7 @@ module.exports.routes = {
 
 
   // Admin Routes
+  'POST /admin/register': { action: 'admin/register-action' },
   'POST /admin/login': { action: 'admin/login-action' },
   'GET /admin/listAllUsers': { action: 'admin/list-all-users-action' }
   

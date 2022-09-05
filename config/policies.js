@@ -17,6 +17,15 @@ module.exports.policies = {
   *                                                                          *
   ***************************************************************************/
 
-  // '*': true,
+  //  '*': true,
 
+
+  'user/*': 'isUserLoggedIn',
+  'user/login-action': true,
+  'user/registerAction': true,
+
+
+  'admin/*': 'isAdminLoggedIn',
+  'admin/login-action': true,
+  'admin/registerAction': true,
 };
