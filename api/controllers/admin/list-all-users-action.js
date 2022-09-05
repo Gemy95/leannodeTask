@@ -1,24 +1,25 @@
+const User = require("../../../firebase/connection").User;
+
 module.exports = {
 
-    friendlyName: 'Profile',
+    friendlyName: 'List All Usetrs',
   
-    description: 'Action for get user profile',
+    description: 'Action for get all users',
   
-    // exits: {
-    // //   success: {
-    // //     responseType: 'view',
-    // //     viewTemplatePath: 'pages/welcome'
-    // //   },
-    //   notFound: {
-    //     description: 'user error ocurried',
-    //     responseType: 'notFound'
-    //   }
-    // },
   
     fn: async function () {
 
-        return {"name":"aliiiiiiiiiii"};
-    
+        const users = (await User.get()).docs
+        .map((doc) => {
+          const user = { id: doc.id, ...doc.data() };
+          delete user.password;
+          return user;
+        });
+
+        return {
+            users
+        }
+        
       }
     
   };

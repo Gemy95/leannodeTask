@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
-const USER_JWT_SECRET_KEY =
-  require("../../../config/env/local").USER_JWT_SECRET_KEY;
-const User = require("../../../firebase/connection").User;
+const ADMIN_JWT_SECRET_KEY =
+  require("../../../config/env/local").ADMIN_JWT_SECRET_KEY;
+const Admin = require("../../../firebase/connection").Admin;
 const bcrypt = require("bcryptjs");
 
 module.exports = {
   friendlyName: "Register",
 
-  description: "Action for register new user",
+  description: "Action for register new admin",
 
   inputs: {
     userName: { type: "string", required: true, allowNull: false },
@@ -17,12 +17,8 @@ module.exports = {
   },
 
   exits: {
-    //   success: {
-    //     responseType: 'view',
-    //     viewTemplatePath: 'pages/welcome'
-    //   },
     notFound: {
-      description: "user error ocurried",
+      description: "admin error ocurried",
       responseType: "notFound",
     },
   },
@@ -52,29 +48,29 @@ module.exports = {
       throw "not valid userName , must be has 3 letters and numbers or more";
     }
 
-    const allUsers = (await User.get()).docs.map((doc) => {
-      const user = { id: doc.id, ...doc.data() };
+    const allAdmins = (await Admin.get()).docs.map((doc) => {
+      const admin = { id: doc.id, ...doc.data() };
 
-      if (userName == user.userName) {
+      if (userName == admin.userName) {
         throw "username already exists";
       }
 
-      if (email == user.email) {
+      if (email == admin.email) {
         throw "email already exists";
       }
-      return user;
+      return admin;
     });
 
-    const token = jwt.sign({ userName, email, age }, USER_JWT_SECRET_KEY);
+    const token = jwt.sign({ userName, email, age }, ADMIN_JWT_SECRET_KEY);
 
     const hashedPassword = await sails.helpers.hashPassword.with({ password });
 
-    await User.add({ userName, email, password: hashedPassword, age });
+    await Admin.add({ userName, email, password: hashedPassword, age });
 
     return {
       statusCode:200,
-     // user: { userName, email, password, age },
-     // token,
+      // admin: { userName, email, password, age },
+      // token,
     };
   },
 };
