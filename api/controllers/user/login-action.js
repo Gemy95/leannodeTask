@@ -10,18 +10,24 @@ module.exports = {
   description: "Action for login user",
 
   inputs: {
-    email: { type: "string", required: true, allowNull: false },
+    userName: { type: "string", required: true, allowNull: false },
     password: { type: "string", required: true, allowNull: false },
   },
 
-  fn: async function ({ email, password }) {
+  fn: async function ({ userName, password }) {
     try {
-      const validateEmail = await sails.helpers.validateEmail.with({ email });
 
-      if (!validateEmail) {
-        throw { code: "UsageError", message: "not valid email" };
+      const validateUserName = await sails.helpers.validateUserName.with({
+        userName,
+      });
+
+      if (!validateUserName) {
+        throw {
+          code: "UsageError",
+          message:
+            "not valid userName , should be more than or equal 3 characters contains numbers and letters",
+        };
       }
-
       const validatePassword = await sails.helpers.validatePassword.with({
         password,
       });
@@ -40,7 +46,7 @@ module.exports = {
           return user;
         })
         .filter((user) => {
-          return user.email == email;
+          return user.userName == userName;
         })[0];
 
       if (!user) {
