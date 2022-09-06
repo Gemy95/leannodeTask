@@ -9,9 +9,6 @@ exports.addUser = (data) => {
     .saveObjects([data])
     .then(({ objectIDs }) => {
     })
-    .catch((err) => {
-      console.log(err);
-    });
 };
 
 
@@ -21,10 +18,7 @@ exports.searchUser = (search) => {
     .then(({ hits }) => {
       return hits.map((item)=>{
         delete item._highlightResult;
-        return item
+        return item;
       });
     })
-    .catch((err) => {
-      console.log(err);
-    });
 };
