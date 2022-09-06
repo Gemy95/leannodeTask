@@ -29,7 +29,7 @@ module.exports = {
           throw {
             code: "UsageError",
             message:
-              "not valid userName , must be has 3 letters and numbers or more",
+              "not valid userName , should be more than or equal 3 characters contains numbers and letters",
           };
         }
         updatedUser["userName"] = userName;
@@ -53,7 +53,7 @@ module.exports = {
           throw {
             code: "UsageError",
             message:
-              "not valid password , must be has 6 letters and numbers or more",
+              "not valid password , should be more than 6 characters contains numbers and letters",
           };
         }
         const hashedPassword = await sails.helpers.hashPassword.with({
@@ -69,7 +69,7 @@ module.exports = {
           throw {
             code: "UsageError",
             message:
-              "not valid age , must be more than or equal 18 and must be less than or equal 50",
+              "not valid age , should be between 18 and 50",
           };
         }
         updatedUser["age"] = age;
