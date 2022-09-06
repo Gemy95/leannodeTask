@@ -16,78 +16,97 @@ module.exports = {
     age: { type: "number", required: false, allowNull: false },
   },
 
-  exits: {
-    notFound: {
-      description: "user error ocurried",
-      responseType: "notFound",
-    },
-  },
-
   fn: async function ({ userName, email, password, age }) {
-    
-    let updatedUser={};
+    try {
+      let updatedUser = {};
 
-    if (userName) {
-      const validateUserName = await sails.helpers.validateUserName.with({ userName });
+      if (userName) {
+        const validateUserName = await sails.helpers.validateUserName.with({
+          userName,
+        });
 
-      if (!validateUserName) {
-        throw "not valid userName , must be has 3 letters and numbers or more";
+        if (!validateUserName) {
+          throw {
+            code: "UsageError",
+            message:
+              "not valid userName , must be has 3 letters and numbers or more",
+          };
+        }
+        updatedUser["userName"] = userName;
       }
-      updatedUser['userName']= userName;
+
+      if (email) {
+        const validateEmail = await sails.helpers.validateEmail.with({ email });
+
+        if (!validateEmail) {
+          throw { code: "UsageError", message: "not valid email" };
+        }
+        updatedUser["email"] = email;
+      }
+
+      if (password) {
+        const validatePassword = await sails.helpers.validatePassword.with({
+          password,
+        });
+
+        if (!validatePassword) {
+          throw {
+            code: "UsageError",
+            message:
+              "not valid password , must be has 6 letters and numbers or more",
+          };
+        }
+        const hashedPassword = await sails.helpers.hashPassword.with({
+          password,
+        });
+        updatedUser["password"] = hashedPassword;
+      }
+
+      if (age) {
+        const validateAge = await sails.helpers.validateAge.with({ age });
+
+        if (!validateAge) {
+          throw {
+            code: "UsageError",
+            message:
+              "not valid age , must be more than or equal 18 and must be less than or equal 50",
+          };
+        }
+        updatedUser["age"] = age;
+      }
+
+      const user = (await User.get()).docs
+        .map((doc) => {
+          const user = { id: doc.id, ...doc.data() };
+
+          if (userName && userName == user.userName) {
+            throw { code: "E_UNIQUE", message: "username already exists" };
+          }
+
+          if (email && email == user.email) {
+            throw { code: "E_UNIQUE", message: "email already exists" };
+          }
+
+          return user;
+        })
+        .filter((user) => {
+          return user.id == this.req.user.id;
+        })[0];
+
+      const result = Object.assign(user, updatedUser);
+
+      await User.doc(this.req.user.id).update(result);
+
+      return {
+        statusCode: 200,
+      };
+    } catch (error) {
+      if (error.code === "UsageError") {
+        return this.res.status(403).send({ message: error.message });
+      } else if (error.code === "E_UNIQUE") {
+        return this.res.status(422).send({ message: error.message });
+      }
+      return this.res.status(400).send({ message: error.message });
     }
-
-    if (email) {
-      const validateEmail = await sails.helpers.validateEmail.with({ email });
-
-      if (!validateEmail) {
-        throw "not valid email";
-      }
-      updatedUser['email']= email;
-    }
-    
-    if (password) {
-      const validatePassword = await sails.helpers.validatePassword.with({
-        password,
-      });
-
-      if (!validatePassword) {
-        throw "not valid password , must be has 6 letters and numbers or more";
-      }
-      const hashedPassword = await sails.helpers.hashPassword.with({ password });
-      updatedUser['password']= hashedPassword;
-    }
-
-    if (age) {
-      const validateAge = await sails.helpers.validateAge.with({ age });
-
-      if (!validateAge) {
-        throw "not valid age , must be more than or equal 18 and must be less than or equal 50";
-      }
-      updatedUser['age']= age;
-    }
-
-    const user = (await User.get()).docs.map((doc) => {
-      const user = { id: doc.id, ...doc.data() };
-
-      if (userName && userName == user.userName) {
-        throw "username already exists";
-      }
-
-      if (email && email == user.email) {
-        throw "email already exists";
-      }
-
-      return user;
-    }).filter((user) => {
-      return user.id == this.req.user.id;
-    })[0];
-
-    const result= Object.assign(user,updatedUser);
-
-    await User.doc(this.req.user.id).update(result);
-
-    return {
-      statusCode:200
-    };
   },
 };

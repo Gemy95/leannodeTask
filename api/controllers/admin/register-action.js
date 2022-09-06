@@ -5,6 +5,7 @@ const Admin = require("../../../firebase/connection").Admin;
 const bcrypt = require("bcryptjs");
 
 module.exports = {
+  
   friendlyName: "Register",
 
   description: "Action for register new admin",
@@ -16,61 +17,81 @@ module.exports = {
     age: { type: "number", required: true, allowNull: false },
   },
 
-  exits: {
-    notFound: {
-      description: "admin error ocurried",
-      responseType: "notFound",
-    },
-  },
-
   fn: async function ({ userName, email, password, age }) {
-    const validateEmail = await sails.helpers.validateEmail.with({ email });
+    try {
+      const validateEmail = await sails.helpers.validateEmail.with({ email });
 
-    if (!validateEmail) {
-      throw "not valid email";
-    }
-
-    const validatePassword = await sails.helpers.validatePassword.with({ password });
-
-    if (!validatePassword) {
-      throw "not valid password , must be has 6 letters and numbers or more";
-    }
-
-    const validateAge = await sails.helpers.validateAge.with({ age });
-
-    if (!validateAge) {
-      throw "not valid age , must be more than or equal 18 and must be less than or equal 50";
-    }
-
-    const validateUserName = await sails.helpers.validateUserName.with({ userName });
-
-    if (!validateUserName) {
-      throw "not valid userName , must be has 3 letters and numbers or more";
-    }
-
-    const allAdmins = (await Admin.get()).docs.map((doc) => {
-      const admin = { id: doc.id, ...doc.data() };
-
-      if (userName == admin.userName) {
-        throw "username already exists";
+      if (!validateEmail) {
+        throw { code: "UsageError", message: "not valid email" };
       }
 
-      if (email == admin.email) {
-        throw "email already exists";
+      const validatePassword = await sails.helpers.validatePassword.with({
+        password,
+      });
+
+      if (!validatePassword) {
+        throw {
+          code: "UsageError",
+          message:
+            "not valid password , must be has 6 letters and numbers or more",
+        };
       }
-      return admin;
-    });
 
-    const token = jwt.sign({ userName, email, age }, ADMIN_JWT_SECRET_KEY);
+      const validateAge = await sails.helpers.validateAge.with({ age });
 
-    const hashedPassword = await sails.helpers.hashPassword.with({ password });
+      if (!validateAge) {
+        throw {
+          code: "UsageError",
+          message:
+            "not valid age , must be more than or equal 18 and must be less than or equal 50",
+        };
+      }
 
-    await Admin.add({ userName, email, password: hashedPassword, age });
+      const validateUserName = await sails.helpers.validateUserName.with({
+        userName,
+      });
 
-    return {
-      statusCode:200,
-      // admin: { userName, email, password, age },
-      // token,
-    };
+      if (!validateUserName) {
+        throw {
+          code: "UsageError",
+          message:
+            "not valid userName , must be has 3 letters and numbers or more",
+        };
+      }
+
+      const allAdmins = (await Admin.get()).docs.map((doc) => {
+        const admin = { id: doc.id, ...doc.data() };
+
+        if (userName == admin.userName) {
+          throw { code: "E_UNIQUE", message: "username already exists" };
+        }
+
+        if (email == admin.email) {
+          throw { code: "E_UNIQUE", message: "email already exists" };
+        }
+        return admin;
+      });
+
+      const token = jwt.sign({ userName, email, age }, ADMIN_JWT_SECRET_KEY);
+
+      const hashedPassword = await sails.helpers.hashPassword.with({
+        password,
+      });
+
+      await Admin.add({ userName, email, password: hashedPassword, age });
+
+      return {
+        statusCode: 200,
+        // admin: { userName, email, password, age },
+        // token,
+      };
+    } catch (error) {
+      if (error.code === "UsageError") {
+        return this.res.status(403).send({ message: error.message });
+      } else if (error.code === "E_UNIQUE") {
+        return this.res.status(422).send({ message: error.message });
+      }
+      return this.res.status(400).send({ message: error.message });
+    }
   },
 };
