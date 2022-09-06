@@ -14,4 +14,9 @@ module.exports = {
     appId: "1:317048200394:web:1866bbb6ce05096abca833",
     measurementId: "G-2381DEYR5J",
   },
+
+  algoliaConfig: {
+    applicationID:"33W5ZCCD39",
+    adminAPIKey:"18bd6c3b14bce6f596846b4e93516dc4"
+  }
 };
