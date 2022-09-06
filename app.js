@@ -35,6 +35,7 @@ try {
   sails = require('sails');
   rc = require('sails/accessible/rc');
    require('./firebase/connection');
+   require('./algolia/connection');
 } catch (err) {
   console.error('Encountered an error when attempting to require(\'sails\'):');
   console.error(err.stack);

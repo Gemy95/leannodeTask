@@ -3,6 +3,7 @@ const USER_JWT_SECRET_KEY =
   require("../../../config/env/local").USER_JWT_SECRET_KEY;
 const User = require("../../../firebase/connection").User;
 const bcrypt = require("bcryptjs");
+const algoliaService = require('../../../algolia/connection');
 
 module.exports = {
   friendlyName: "Register",
@@ -69,7 +70,13 @@ module.exports = {
 
     const hashedPassword = await sails.helpers.hashPassword.with({ password });
 
-    await User.add({ userName, email, password: hashedPassword, age });
+    const result= await User.add({ userName, email, password: hashedPassword, age }).then( async function(docRef) {
+      await algoliaService.addUser({ objectID: docRef.id ,userName, email, password: hashedPassword, age });
+  })
+  .catch(function(error) {
+      console.error("Error adding document: ", error);
+  });;
+;
 
     return {
       statusCode:200,
